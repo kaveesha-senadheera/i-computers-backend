@@ -1,6 +1,9 @@
 import User from "../models/user.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 
 export function createUser(req,res){
@@ -41,7 +44,7 @@ export function loginUser(req,res){
         (user)=>{
             
             if(user== null){
-                res.json({
+                res.status(404).json({
                     message: "User with given email not found"
                 })
             }else{
@@ -56,22 +59,18 @@ export function loginUser(req,res){
                         role : user.role,
                         image : user.image,
                         isEmailVerified : user.isEmailVerified,
-                    } , "i computers-54!")
+                    } , 
+                    Process.env.JWT_SECRET,
+                    { expiresIn : req.body.rememberme? "30d" : "48h"}
+                );
 
 
-                    console.log(token)
-                    console.log({
-                        email : user.email,
-                        firstName: user.firstName,
-                        lastName : user.lastName,
-                        role : user.role,
-                        image : user.image,
-                        isEmailVerified : user.isEmailVerified,
-                    })
+                    
 
                  res.json({
                         message : "Login successful",
                         token:token,
+                        role:user.role,
                     })
                 }else{
                     res.status(401).json(
